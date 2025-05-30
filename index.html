@@ -1,86 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carbon Footprint Tracker</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoTrack - Carbon Footprint Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="dark-mode-toggle">
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
 
+      <div class="earth-icon"></div>
 
-   
-</head>
-<link rel="stylesheet" href="style.css">
-<body>
-       
+      <div class="header">
+        <h1>EcoTrack</h1>
+        <p>
+          Measure your environmental impact and discover ways to reduce your
+          carbon footprint
+        </p>
+      </div>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carbon Footprint Tracker</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="Container">
-        <h1>Carbon Footprint Tracker</h1>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="calculator">
+          <i class="fas fa-calculator"></i> Calculator
+        </button>
+        <button class="tab-btn" data-tab="history">
+          <i class="fas fa-history"></i> History
+        </button>
+        <button class="tab-btn" data-tab="insights">
+          <i class="fas fa-chart-line"></i> Insights
+        </button>
+      </div>
+
+      <div id="calculator" class="tab-content active">
         <form id="carbonForm">
-            <label for="miles">Miles driven (car):</label>
-            <input type="number" id="miles" required>
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="miles"
+                ><i class="fas fa-car"></i> Miles driven (car):</label
+              >
+              <i class="fas fa-road input-icon"></i>
+              <input
+                type="number"
+                id="miles"
+                placeholder="e.g., 150"
+                min="0"
+                required
+              />
+            </div>
 
-            <label for="electricity">Electricity used (kWh):</label>
-            <input type="number" id="electricity" required>
+            <div class="input-group">
+              <label for="electricity"
+                ><i class="fas fa-bolt"></i> Electricity used (kWh):</label
+              >
+              <i class="fas fa-plug input-icon"></i>
+              <input
+                type="number"
+                id="electricity"
+                placeholder="e.g., 350"
+                min="0"
+                required
+              />
+            </div>
 
-            <label for="meat">Meat consumption (meals per week):</label>
-            <input type="number" id="meat" required>
+            <div class="input-group">
+              <label for="meat"
+                ><i class="fas fa-drumstick-bite"></i> Meat meals per
+                week:</label
+              >
+              <i class="fas fa-utensils input-icon"></i>
+              <input
+                type="number"
+                id="meat"
+                placeholder="e.g., 7"
+                min="0"
+                required
+              />
+            </div>
 
-            <label for="flights">Miles flown (air travel):</label>
-            <input type="number" id="flights" required>
+            <div class="input-group">
+              <label for="flights"
+                ><i class="fas fa-plane"></i> Miles flown:</label
+              >
+              <i class="fas fa-plane-departure input-icon"></i>
+              <input
+                type="number"
+                id="flights"
+                placeholder="e.g., 500"
+                min="0"
+                required
+              />
+            </div>
 
-            <label for="bus">Miles traveled by bus:</label>
-            <input type="number" id="bus" required>
+            <div class="input-group">
+              <label for="bus"><i class="fas fa-bus"></i> Miles by bus:</label>
+              <i class="fas fa-bus-alt input-icon"></i>
+              <input
+                type="number"
+                id="bus"
+                placeholder="e.g., 30"
+                min="0"
+                required
+              />
+            </div>
 
-            <label for="train">Miles traveled by train:</label>
-            <input type="number" id="train" required>
+            <div class="input-group">
+              <label for="train"
+                ><i class="fas fa-train"></i> Miles by train:</label
+              >
+              <i class="fas fa-subway input-icon"></i>
+              <input
+                type="number"
+                id="train"
+                placeholder="e.g., 50"
+                min="0"
+                required
+              />
+            </div>
 
-            <label for="naturalGas">Natural Gas used (therms):</label>
-            <input type="number" id="naturalGas" required>
+            <div class="input-group">
+              <label for="naturalGas"
+                ><i class="fas fa-fire"></i> Natural Gas (therms):</label
+              >
+              <i class="fas fa-gas-pump input-icon"></i>
+              <input
+                type="number"
+                id="naturalGas"
+                placeholder="e.g., 20"
+                min="0"
+                required
+              />
+            </div>
+          </div>
 
-            <button type="submit">Calculate</button>
+          <div class="btn-container">
+            <button type="submit" class="btn">
+              <i class="fas fa-leaf"></i> Calculate Footprint
+            </button>
+          </div>
         </form>
 
-        <div class="results">
-            <h2>Your Carbon Footprint</h2>
-            <p id="FootprintResult"></p>
-            <h3>Emission Breakdown:</h3>
-            <ul id="Breakdown"></ul>
-            <p id="Suggestions"></p>
-            <button id="downloadCSV">Download CSV</button>
-<button id="downloadPDF">Download PDF</button>
+        <div id="results" class="results">
+          <div class="results-header">
+            <h2>Your Carbon Footprint Analysis</h2>
+            <div class="btn-container">
+              <button id="downloadCSV" class="btn btn-secondary">
+                <i class="fas fa-file-csv"></i> CSV
+              </button>
+              <button id="downloadPDF" class="btn btn-secondary">
+                <i class="fas fa-file-pdf"></i> PDF
+              </button>
+            </div>
+          </div>
 
+          <div class="footprint-result">
+            <h2>Total Carbon Footprint</h2>
+            <div class="footprint-value" id="FootprintResult">0.00 tons</div>
+            <span class="rating" id="impactRating">Low Impact</span>
+            <p id="comparisonText">
+              Your footprint is 15% lower than the national average
+            </p>
+          </div>
+
+          <div class="breakdown">
+            <h3><i class="fas fa-chart-pie"></i> Emission Breakdown</h3>
+            <div id="Breakdown"></div>
+          </div>
+
+          <div class="suggestions">
+            <h3>
+              <i class="fas fa-lightbulb"></i> Ways to Reduce Your Footprint
+            </h3>
+            <ul id="Suggestions"></ul>
+          </div>
         </div>
+      </div>
 
+      <div id="history" class="tab-content">
         <div class="history">
-            <h2>Past Calculations</h2>
-            <ul id="historyList"></ul>
-            <button id="clearHistory">Clear History</button>
+          <h2><i class="fas fa-history"></i> Past Calculations</h2>
+          <ul id="historyList"></ul>
+
+          <div class="btn-container" style="margin-top: 25px">
+            <button id="clearHistory" class="btn btn-danger">
+              <i class="fas fa-trash-alt"></i> Clear History
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div id="insights" class="tab-content">
         <div class="chart-container">
-            <canvas id="carbonChart"></canvas>
+          <canvas id="carbonChart"></canvas>
         </div>
-        <label class="switch">
-            <input type="checkbox" id="darkModeToggle">
-            <span class="slider"></span>
-        </label>
-        
+
+        <div class="suggestions">
+          <h3><i class="fas fa-chart-line"></i> Monthly Footprint Trend</h3>
+          <p id="trendText">
+            Your carbon footprint has decreased by 8% over the last 3 months.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          Made with <i class="fas fa-heart" style="color: #f44336"></i> for a
+          sustainable future | EcoTrack © 2023
+        </p>
+      </div>
     </div>
-    <script src="app.js"></script>
-</body>
-    
-</html>
-
 
     <script src="app.js"></script>
-</body>
+  </body>
 </html>

@@ -1,5 +1,29 @@
 let carbonChart;
+const nationalAvg = 5.5; // Average carbon footprint in tons per week
 
+// Tab functionality
+const tabBtns = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const tabId = btn.getAttribute("data-tab");
+
+    // Update active tab button
+    tabBtns.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // Show active tab content
+    tabContents.forEach((content) => {
+      content.classList.remove("active");
+      if (content.id === tabId) {
+        content.classList.add("active");
+      }
+    });
+  });
+});
+
+// Form submission
 document
   .getElementById("carbonForm")
   .addEventListener("submit", function (event) {
@@ -45,32 +69,130 @@ document
     const naturalGasEmissions = naturalGas * naturalGasEmissionFactor;
 
     const totalFootprint =
-      carEmissions +
-      electricityEmissions +
-      meatEmissions +
-      flightEmissions +
-      busEmissions +
-      trainEmissions +
-      naturalGasEmissions;
+      (carEmissions +
+        electricityEmissions +
+        meatEmissions +
+        flightEmissions +
+        busEmissions +
+        trainEmissions +
+        naturalGasEmissions) /
+      1000; // Convert to tons
 
+    // Display results
     document.getElementById(
       "FootprintResult"
-    ).innerText = `Your estimated carbon footprint: ${totalFootprint.toFixed(
-      2
-    )} kg CO2 per week`;
+    ).textContent = `${totalFootprint.toFixed(2)} tons`;
+
+    // Set impact rating
+    const rating = document.getElementById("impactRating");
+    rating.className = "rating";
+    if (totalFootprint > 6) {
+      rating.textContent = "High Impact";
+      rating.classList.add("danger");
+    } else if (totalFootprint > 4) {
+      rating.textContent = "Medium Impact";
+      rating.classList.add("warning");
+    } else {
+      rating.textContent = "Low Impact";
+    }
+
+    // Comparison text
+    const comparison = document.getElementById("comparisonText");
+    const diff = Math.abs(totalFootprint - nationalAvg);
+    const percentDiff = ((diff / nationalAvg) * 100).toFixed(0);
+
+    if (totalFootprint > nationalAvg) {
+      comparison.textContent = `Your footprint is ${percentDiff}% higher than the national average`;
+    } else {
+      comparison.textContent = `Your footprint is ${percentDiff}% lower than the national average`;
+    }
+
+    // Update breakdown
+    const breakdown = document.getElementById("Breakdown");
+    breakdown.innerHTML = `
+                <div class="breakdown-item">
+                    <div class="category">
+                        <i class="fas fa-car"></i>
+                        <span>Transportation</span>
+                    </div>
+                    <div class="value">${carEmissions.toFixed(2)} kg</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="category">
+                        <i class="fas fa-bolt"></i>
+                        <span>Electricity</span>
+                    </div>
+                    <div class="value">${electricityEmissions.toFixed(
+                      2
+                    )} kg</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="category">
+                        <i class="fas fa-utensils"></i>
+                        <span>Food</span>
+                    </div>
+                    <div class="value">${meatEmissions.toFixed(2)} kg</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="category">
+                        <i class="fas fa-plane"></i>
+                        <span>Flights</span>
+                    </div>
+                    <div class="value">${flightEmissions.toFixed(2)} kg</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="category">
+                        <i class="fas fa-bus"></i>
+                        <span>Bus</span>
+                    </div>
+                    <div class="value">${busEmissions.toFixed(2)} kg</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="category">
+                        <i class="fas fa-train"></i>
+                        <span>Train</span>
+                    </div>
+                    <div class="value">${trainEmissions.toFixed(2)} kg</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="category">
+                        <i class="fas fa-fire"></i>
+                        <span>Natural Gas</span>
+                    </div>
+                    <div class="value">${naturalGasEmissions.toFixed(
+                      2
+                    )} kg</div>
+                </div>
+            `;
+
+    // Generate suggestions
+    const suggestions = document.getElementById("Suggestions");
+    suggestions.innerHTML = "";
+
+    if (carEmissions > 100) {
+      suggestions.innerHTML += `<li>Consider carpooling or using public transportation to reduce your driving emissions</li>`;
+    }
+
+    if (electricityEmissions > 200) {
+      suggestions.innerHTML += `<li>Switch to energy-efficient appliances and turn off devices when not in use</li>`;
+    }
+
+    if (meatEmissions > 30) {
+      suggestions.innerHTML += `<li>Reduce meat consumption and incorporate more plant-based meals</li>`;
+    }
+
+    if (flightEmissions > 100) {
+      suggestions.innerHTML += `<li>Consider video conferencing instead of flying when possible</li>`;
+    }
+
+    if (suggestions.innerHTML === "") {
+      suggestions.innerHTML = `<li>Great job! Your carbon footprint is well managed. Keep up the good work!</li>`;
+    }
+
+    // Show results
     document.querySelector(".results").style.display = "block";
 
-    const breakdownList = document.getElementById("Breakdown");
-    breakdownList.innerHTML = `
-        <li>Car: ${carEmissions.toFixed(2)} kg CO2</li>
-        <li>Electricity: ${electricityEmissions.toFixed(2)} kg CO2</li>
-        <li>Meat Consumption: ${meatEmissions.toFixed(2)} kg CO2</li>
-        <li>Flights: ${flightEmissions.toFixed(2)} kg CO2</li>
-        <li>Bus: ${busEmissions.toFixed(2)} kg CO2</li>
-        <li>Train: ${trainEmissions.toFixed(2)} kg CO2</li>
-        <li>Natural Gas: ${naturalGasEmissions.toFixed(2)} kg CO2</li>
-    `;
-
+    // Save to history
     let history = JSON.parse(localStorage.getItem("carbonHistory")) || [];
     history.push({
       date: new Date().toLocaleDateString(),
@@ -80,25 +202,63 @@ document
 
     displayHistory();
     updateChart();
+
+    // Scroll to results
+    document.getElementById("results").scrollIntoView({ behavior: "smooth" });
   });
 
 function displayHistory() {
   let history = JSON.parse(localStorage.getItem("carbonHistory")) || [];
   const historyList = document.getElementById("historyList");
-  historyList.innerHTML = history
-    .map((entry) => `<li>${entry.date} - ${entry.footprint} kg CO2</li>`)
-    .join("");
+
+  if (history.length === 0) {
+    historyList.innerHTML =
+      "<p>No history available. Calculate your footprint to see history here.</p>";
+    return;
+  }
+
+  historyList.innerHTML = "";
+
+  history.forEach((entry) => {
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    let ratingClass = "";
+    let ratingText = "";
+    const footprint = parseFloat(entry.footprint);
+
+    if (footprint > 6) {
+      ratingClass = "danger";
+      ratingText = "High";
+    } else if (footprint > 4) {
+      ratingClass = "warning";
+      ratingText = "Medium";
+    } else {
+      ratingClass = "";
+      ratingText = "Low";
+    }
+
+    item.innerHTML = `
+                    <div class="info">
+                        <div class="date">${entry.date}</div>
+                        <div class="footprint">${entry.footprint} tons CO2</div>
+                    </div>
+                    <div class="rating ${ratingClass}">${ratingText}</div>
+                `;
+
+    historyList.appendChild(item);
+  });
 }
 
-document.getElementById("clearHistory").addEventListener("click", function () {
-  localStorage.removeItem("carbonHistory");
-  displayHistory();
-  updateChart();
-});
-
-// Function to update the chart
 function updateChart() {
   let history = JSON.parse(localStorage.getItem("carbonHistory")) || [];
+  const trendText = document.getElementById("trendText");
+
+  if (history.length === 0) {
+    trendText.textContent =
+      "Calculate your footprint multiple times to see trends here.";
+    return;
+  }
 
   const labels = history.map((entry) => entry.date);
   const data = history.map((entry) => parseFloat(entry.footprint));
@@ -106,7 +266,7 @@ function updateChart() {
   const ctx = document.getElementById("carbonChart").getContext("2d");
 
   if (carbonChart) {
-    carbonChart.destroy(); // Destroy previous chart instance
+    carbonChart.destroy();
   }
 
   carbonChart = new Chart(ctx, {
@@ -115,11 +275,15 @@ function updateChart() {
       labels: labels,
       datasets: [
         {
-          label: "Carbon Footprint (kg CO2)",
+          label: "Carbon Footprint (tons CO2)",
           data: data,
-          borderColor: "#4CAF50",
-          backgroundColor: "rgba(76, 175, 80, 0.2)",
-          borderWidth: 2,
+          borderColor: "#00c853",
+          backgroundColor: "rgba(0, 200, 83, 0.1)",
+          borderWidth: 3,
+          pointBackgroundColor: "#00c853",
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          tension: 0.3,
           fill: true,
         },
       ],
@@ -127,28 +291,96 @@ function updateChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: 14,
+            },
+          },
+        },
+        tooltip: {
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          titleFont: {
+            size: 14,
+          },
+          bodyFont: {
+            size: 13,
+          },
+          padding: 12,
+          cornerRadius: 10,
+        },
+      },
       scales: {
+        y: {
+          beginAtZero: false,
+          title: {
+            display: true,
+            text: "Tons CO2",
+            font: {
+              size: 14,
+              weight: "bold",
+            },
+          },
+          grid: {
+            color: "rgba(0, 0, 0, 0.05)",
+          },
+          ticks: {
+            font: {
+              size: 12,
+            },
+          },
+        },
         x: {
           title: {
             display: true,
             text: "Date",
+            font: {
+              size: 14,
+              weight: "bold",
+            },
           },
-        },
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: "kg CO2",
+          grid: {
+            display: false,
+          },
+          ticks: {
+            font: {
+              size: 12,
+            },
           },
         },
       },
     },
   });
+
+  // Calculate trend
+  if (history.length > 1) {
+    const first = parseFloat(history[0].footprint);
+    const last = parseFloat(history[history.length - 1].footprint);
+    const diff = last - first;
+    const percent = Math.abs((diff / first) * 100).toFixed(0);
+
+    if (diff < 0) {
+      trendText.textContent = `Great news! Your carbon footprint has decreased by ${percent}% since you started tracking.`;
+    } else {
+      trendText.textContent = `Your carbon footprint has increased by ${percent}% since you started tracking. Consider implementing some reduction strategies.`;
+    }
+  } else {
+    trendText.textContent =
+      "Track your footprint multiple times to see your progress over time.";
+  }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  displayHistory();
-  updateChart();
+document.getElementById("clearHistory").addEventListener("click", function () {
+  if (
+    confirm(
+      "Are you sure you want to clear your history? This cannot be undone."
+    )
+  ) {
+    localStorage.removeItem("carbonHistory");
+    displayHistory();
+    updateChart();
+  }
 });
 
 // Function to download CSV
@@ -221,4 +453,10 @@ darkModeToggle.addEventListener("change", function () {
     document.body.classList.remove("dark-mode");
     localStorage.setItem("darkMode", "disabled");
   }
+});
+
+// Initialize on load
+document.addEventListener("DOMContentLoaded", () => {
+  displayHistory();
+  updateChart();
 });
