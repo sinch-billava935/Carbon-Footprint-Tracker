@@ -383,7 +383,70 @@ document.getElementById("clearHistory").addEventListener("click", function () {
   }
 });
 
-// Function to download CSV
+// Function to download PDF
+document.getElementById("downloadPDF").addEventListener("click", function () {
+  console.log("PDF button clicked!"); // Debug log
+
+  let history = JSON.parse(localStorage.getItem("carbonHistory")) || [];
+  console.log("History data:", history); // Debug log
+
+  if (history.length === 0) {
+    alert("No data available to download.");
+    return;
+  }
+
+  // Check if jsPDF is loaded
+  console.log("window.jspdf:", window.jspdf); // Debug log
+
+  if (typeof window.jspdf === "undefined") {
+    alert(
+      "PDF library not loaded. Please check the console and try refreshing the page."
+    );
+    console.error("jsPDF library is not loaded!");
+    return;
+  }
+
+  try {
+    console.log("Creating PDF..."); // Debug log
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Simple PDF creation first
+    doc.setFontSize(18);
+    doc.text("Carbon Footprint Report", 20, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 35);
+
+    doc.setFontSize(14);
+    doc.text("History:", 20, 50);
+
+    // Add history data
+    let yPos = 65;
+    history.forEach((entry, index) => {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(11);
+      doc.text(
+        `${index + 1}. ${entry.date} - ${entry.footprint} tons CO2`,
+        20,
+        yPos
+      );
+      yPos += 15;
+    });
+
+    console.log("Saving PDF..."); // Debug log
+    doc.save("carbon_footprint_report.pdf");
+    console.log("PDF saved successfully!"); // Debug log
+  } catch (error) {
+    console.error("PDF generation error:", error);
+    alert(`Error generating PDF: ${error.message}`);
+  }
+});
+
+// Also add this improved CSV download function (optional enhancement):
 document.getElementById("downloadCSV").addEventListener("click", function () {
   let history = JSON.parse(localStorage.getItem("carbonHistory")) || [];
 
@@ -392,49 +455,25 @@ document.getElementById("downloadCSV").addEventListener("click", function () {
     return;
   }
 
-  let csvContent = "Date,Carbon Footprint (kg CO2)\n";
+  let csvContent = "Date,Carbon Footprint (tons CO2),Impact Level\n";
+
   history.forEach((entry) => {
-    csvContent += `${entry.date},${entry.footprint}\n`;
+    const footprint = parseFloat(entry.footprint);
+    let impactLevel = "Low Impact";
+    if (footprint > 6) impactLevel = "High Impact";
+    else if (footprint > 4) impactLevel = "Medium Impact";
+
+    csvContent += `${entry.date},${entry.footprint},${impactLevel}\n`;
   });
 
   const blob = new Blob([csvContent], { type: "text/csv" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "carbon_footprint.csv";
+  link.download = "carbon_footprint_data.csv";
   link.click();
-});
 
-// Function to download PDF
-document.getElementById("downloadPDF").addEventListener("click", function () {
-  let history = JSON.parse(localStorage.getItem("carbonHistory")) || [];
-
-  if (history.length === 0) {
-    alert("No data available to download.");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(18);
-  doc.text("Carbon Footprint Report", 20, 20);
-
-  doc.setFontSize(12);
-  history.forEach((entry, index) => {
-    doc.text(
-      `${index + 1}. ${entry.date} - ${entry.footprint} kg CO2`,
-      20,
-      40 + index * 10
-    );
-  });
-
-  // Convert chart to image and add it to PDF
-  const canvas = document.getElementById("carbonChart");
-  const imgData = canvas.toDataURL("image/png");
-
-  doc.addImage(imgData, "PNG", 20, 60, 160, 90);
-
-  doc.save("carbon_footprint_report.pdf");
+  // Clean up the URL object
+  URL.revokeObjectURL(link.href);
 });
 
 const darkModeToggle = document.getElementById("darkModeToggle");
