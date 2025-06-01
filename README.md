@@ -1,8 +1,7 @@
 # Carbon-Footprint-Tracker
+
 A simple web app to calculate and track your carbon footprint based on daily activities like transportation, electricity usage, and diet. It includes historical data tracking, visual reports, and downloadable CSV/PDF reports.
 Carbon Footprint Tracker
-
-
 
 About
 
@@ -26,11 +25,11 @@ Installation
 
 Clone the repository:
 
-git clone https://github.com/uf123l0/Carbon-Footprint-Tracker.git
+git clone https://github.com/sinch-billava935/Carbon-Footprint-Tracker.git
 
 Navigate to the project folder:
 
-cd Carbon-Footprint-Tracker
+cd CARBON-FOOTPRINT-TRACKER
 
 Open index.html in a browser
 
