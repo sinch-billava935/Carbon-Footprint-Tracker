@@ -55,10 +55,3 @@ jsPDF for PDF generation
 
 LocalStorage for storing user history
 
-Contributing
-
-Feel free to submit issues or pull requests to improve the project!
-
-License
-
-This project is open-source and available under the MIT License.
